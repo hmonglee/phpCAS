@@ -312,7 +312,7 @@ class phpCAS
      * and phpCAS::setDebug()).
      */
     public static function client($server_version, $server_hostname,
-        $server_port, $server_uri, $changeSessionID = true
+        $server_port, $server_uri, $changeSessionID = true, $useSSL = true
     ) {
         phpCAS :: traceBegin();
         if (is_object(self::$_PHPCAS_CLIENT)) {
@@ -332,7 +332,7 @@ class phpCAS
         try {
             self::$_PHPCAS_CLIENT = new CAS_Client(
                 $server_version, false, $server_hostname, $server_port, $server_uri,
-                $changeSessionID
+                $changeSessionID, $useSSL
             );
         } catch (Exception $e) {
             phpCAS :: error(get_class($e) . ': ' . $e->getMessage());
@@ -356,7 +356,7 @@ class phpCAS
      * and phpCAS::setDebug()).
      */
     public static function proxy($server_version, $server_hostname,
-        $server_port, $server_uri, $changeSessionID = true
+        $server_port, $server_uri, $changeSessionID = true, $useSSL = true
     ) {
         phpCAS :: traceBegin();
         if (is_object(self::$_PHPCAS_CLIENT)) {
@@ -376,7 +376,7 @@ class phpCAS
         try {
             self::$_PHPCAS_CLIENT = new CAS_Client(
                 $server_version, true, $server_hostname, $server_port, $server_uri,
-                $changeSessionID
+                $changeSessionID, $useSSL
             );
         } catch (Exception $e) {
             phpCAS :: error(get_class($e) . ': ' . $e->getMessage());

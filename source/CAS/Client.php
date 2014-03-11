@@ -264,6 +264,11 @@ class CAS_Client
         'uri' => 'none');
 
     /**
+     * A boolean telling if the client use SSL.
+     */
+    private $_useSSL = true;
+    
+    /**
      * This method is used to retrieve the version of the CAS server.
      *
      * @return string the version of the CAS server.
@@ -312,7 +317,12 @@ class CAS_Client
     {
         // the URL is build only when needed
         if ( empty($this->_server['base_url']) ) {
-            $this->_server['base_url'] = 'https://' . $this->_getServerHostname();
+            if ($this->_useSSL) {
+                $this->_server['base_url'] = 'https://' . $this->_getServerHostname();
+            } else {
+                $this->_server['base_url'] = 'http://' . $this->_getServerHostname();
+            }
+            
             if ($this->_getServerPort()!=443) {
                 $this->_server['base_url'] .= ':'
                 .$this->_getServerPort();
@@ -871,7 +881,8 @@ class CAS_Client
         $server_hostname,
         $server_port,
         $server_uri,
-        $changeSessionID = true
+        $changeSessionID = true,
+        $useSSL = true
     ) {
 		// Argument validation
         if (gettype($server_version) != 'string')
@@ -900,6 +911,8 @@ class CAS_Client
 
         // are we in proxy mode ?
         $this->_proxy = $proxy;
+
+        $this->_useSSL = $useSSL;
 
         // Make cookie handling available.
         if ($this->isProxy()) {
@@ -966,7 +979,7 @@ class CAS_Client
 
         if ( $this->_isCallbackMode() ) {
             //callback mode: check that phpCAS is secured
-            if ( !$this->_isHttps() ) {
+            if ( $this->_useSSL && !$this->_isHttps() ) {
                 phpCAS::error(
                     'CAS proxies must be secured to use phpCAS; PGT\'s will not be received from the CAS server'
                 );
@@ -2286,8 +2299,14 @@ class CAS_Client
         // the URL is built when needed only
         if ( empty($this->_callback_url) ) {
             $final_uri = '';
+            
             // remove the ticket if present in the URL
-            $final_uri = 'https://';
+            if ($this->_useSSL) {
+                $final_uri = 'https://';
+            } else {
+                $final_uri = 'http://';
+            }
+            
             $final_uri .= $this->_getClientUrl();
             $request_uri = $_SERVER['REQUEST_URI'];
             $request_uri = preg_replace('/\?.*$/', '', $request_uri);
